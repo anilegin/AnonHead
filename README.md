@@ -15,7 +15,8 @@ This repository provides a head-anonymization workflow that uses:
    - [Run the Anonymization](#run-the-anonymization)  
    - [Optional Prompts](#optional-prompts)  
 5. [Output](#output)  
-6. [Model & References](#model--references)  
+6. [Model & References](#model--references)
+7. [License](#license)
 
 ---
 
@@ -154,6 +155,14 @@ project/
   [DeepFace GitHub](https://github.com/serengil/deepface)
 
 ---
+
+## License
+- **Data & Model Usage**: Comply with each model’s license (for Realistic Vision, DeepFace, etc.).  
+- **Code**: MIT License (or whichever license you choose).
+
+MIT License
+Copyright (c) 2025 ...
+Permission is hereby granted, free of charge, to any person obtaining a copy ...
 
 Feel free to open an issue or pull request for improvements and suggestions!
 
