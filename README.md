@@ -1,7 +1,7 @@
 # Head Anonymization with Realistic Vision V5 and ControlNet
 
 This repository provides a head-anonymization workflow that uses:
-- **[head-segmentation](https://github.com/wiktorlazarski/head-segmentation)** for head/face masks
+- **[head-segmentation](https://github.com/wiktorlazarski/head-segmentation)** for head masks
 - **SG161222/Realistic_Vision_V5.0_noVAE** as the base model
 - **ControlNet** for inpainting
 - **DeepFace** for generating consistent demographic attributes (age, gender, race)
@@ -158,8 +158,7 @@ project/
 
 ## License
 - **Data & Model Usage**: Comply with each model’s license (for Realistic Vision, DeepFace, etc.).  
-- **Code**: MIT License (or whichever license you choose).
-
+- **Code**:
 MIT License
 Copyright (c) 2025 ...
 Permission is hereby granted, free of charge, to any person obtaining a copy ...
