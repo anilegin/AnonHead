@@ -80,8 +80,8 @@ This pipeline aims to anonymize faces while preserving certain identity-related 
 
 1. **Clone the Repository**  
    ```bash
-   git clone https://github.com/anilegin/face_anonymization.git
-   cd face_anonymization
+   git clone https://github.com/anilegin/AnonHead.git
+   cd AnonHead
    ```
 2. **Create a virtual environment (Optional)**  
    ```bash
@@ -105,7 +105,7 @@ This pipeline aims to anonymize faces while preserving certain identity-related 
 ## Usage
 
 ### Segment the Head
-Run the **segment** script to generate a head/face mask from your input image:
+Run the **segment** script to generate a head mask from your input image:
 ```bash
 python segment.py --im_path path/to/your/image.png
 ```
