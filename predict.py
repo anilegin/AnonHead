@@ -84,7 +84,7 @@ class Predictor:
     def predict(
         self,
         image: str,
-        prompt: str = "(a tabby cat)+++, high resolution, sitting on a park bench",
+        prompt: str = "an adult male, high resolution",
         mask: str = None,
         negative_prompt: str = "(deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck",
         strength: float = 0.8,
@@ -92,8 +92,7 @@ class Predictor:
         max_width: int = 612,
         steps: int = 20,
         seed: int = None,
-        guidance_scale: float = 10.0,
-        out_path: str = None
+        guidance_scale: float = 10.0
     ) -> str:
         """
         image (str): Path to input image.
@@ -108,7 +107,7 @@ class Predictor:
         guidance_scale (float): Guidance scale.
 
         Returns:
-            str: File path to the output image (/tmp/output.png).
+            Image.Image: Output image
         """
 
         # Handle random seed
@@ -151,8 +150,7 @@ class Predictor:
         )
 
         out_image = result.images[0]
-        out_image.save(out_path)
-        return out_path
+        return out_image, init_image
     
     
 from deepface import DeepFace
@@ -196,7 +194,7 @@ def create_prompt(deepface_result: dict) -> str:
         f"with a {emotion_descriptor} expression, looking directly at the camera. "
         "Ultra-detailed, 8k resolution, professional photography"
     )
-    print(prompt)
+    print("Prompt: ", prompt)
     return prompt
 
 
@@ -234,9 +232,11 @@ if __name__ == "__main__":
     im_name = os.path.splitext(os.path.basename(args.image))[0]
     args.out_path = os.path.join(args.out_path, f"{im_name}_out.png")
     
+    print('Anonymization Started!')
+    
     objs = DeepFace.analyze(
         img_path = args.image, 
-        actions = ['age', 'gender', 'race', 'emotion'],
+        actions = ['age', 'gender', 'race'], # add 'emotion' if you want to adjust
         )
     
     if args.prompt == "":
@@ -252,7 +252,7 @@ if __name__ == "__main__":
 
 
     predictor = Predictor()
-    output_path = predictor.predict(
+    out_image, init_image = predictor.predict(
         image=args.image,
         prompt=args.prompt,
         mask=args.mask,
@@ -262,8 +262,43 @@ if __name__ == "__main__":
         max_width=args.max_width,
         steps=args.steps,
         seed=args.seed,
-        guidance_scale=args.guidance_scale,
-        out_path = args.out_path
+        guidance_scale=args.guidance_scale
     )
 
-    print(f"Saved output image to: {output_path}")
+    similarity = DeepFace.verify(
+        img1_path = np.array(out_image)[..., ::-1],
+        img2_path = np.array(init_image)[..., ::-1],
+        threshold = float(0.68)
+    )
+    
+    while similarity['verified'] == True:
+        print(f"Image has not been properly anonymized with {similarity['distance']} distance between images, >=0.6 required.",
+              "Process starts again with different configurations.")
+        
+        args.strength = min(1.0, args.strength + 0.05)
+        args.guidance_scale = min(20, args.guidance_scale + 1)
+        args.steps = min(70, args.steps + 5)
+
+        
+        out_image, init_image = predictor.predict(
+            image=args.image,
+            prompt=args.prompt,
+            mask=args.mask,
+            negative_prompt=args.negative_prompt,
+            strength=args.strength,
+            max_height=args.max_height,
+            max_width=args.max_width,
+            steps=args.steps,
+            seed= 0,
+            guidance_scale=args.guidance_scale
+        )
+        
+        similarity = DeepFace.verify(
+            img1_path = np.array(out_image)[..., ::-1],
+            img2_path = np.array(init_image)[..., ::-1],
+            threshold = float(0.6)
+        )
+        
+    out_image.save(args.out_path)
+    print(f"Image has been properly anonymized with {similarity['distance']}.")
+    print(f"Saved output image to: {args.out_path}")
