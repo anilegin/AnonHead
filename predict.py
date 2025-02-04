@@ -272,7 +272,7 @@ if __name__ == "__main__":
     )
     
     while similarity['verified'] == True:
-        print(f"Image has not been properly anonymized with {similarity['distance']} distance between images, >=0.6 required.",
+        print(f"Image has not been properly anonymized with {similarity['distance']} distance between images, >=0.68 required.",
               "Process starts again with different configurations.")
         
         args.strength = min(1.0, args.strength + 0.05)
