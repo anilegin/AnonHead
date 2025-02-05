@@ -2,7 +2,7 @@ import os
 import torch
 import numpy as np
 from PIL import Image
-from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel
+from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel, AutoencoderKL
 from controlnet_aux import LineartDetector
 from compel import Compel
 import argparse
@@ -30,12 +30,19 @@ class Predictor:
         self.lineart_processor = LineartDetector.from_pretrained("lllyasviel/Annotators")
 
         controlnets = [controlnet, lineart_controlnet]
+        
+        vae = AutoencoderKL.from_single_file(
+            "https://huggingface.co/stabilityai/sd-vae-ft-mse-original/blob/main/vae-ft-mse-840000-ema-pruned.safetensors",
+            torch_dtype=torch.float16,
+            cache_dir=VAE_CACHE
+        )
 
         # Create the pipeline
         pipe = StableDiffusionControlNetInpaintPipeline.from_pretrained(
             MODEL_NAME,
             controlnet=controlnets,
             torch_dtype=torch.float16,
+            vae = vae
         )
 
         # For prompt processing
@@ -247,7 +254,7 @@ if __name__ == "__main__":
             "(deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, "
             "anime, mutated hands and fingers:1.4), (deformed, distorted, disfigured:1.3), poorly drawn, "
             "bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, disconnected limbs, "
-            "mutation, mutated, ugly, disgusting, amputation, artifact"
+            "mutation, mutated, ugly, disgusting, amputation"
         )
 
 
@@ -272,7 +279,7 @@ if __name__ == "__main__":
     )
     
     while similarity['verified'] == True:
-        print(f"Image has not been properly anonymized with {similarity['distance']} distance between images, >=0.68 required.",
+        print(f"Image has not been properly anonymized with {similarity['distance']} distance between images, >=0.6 required.",
               "Process starts again with different configurations.")
         
         args.strength = min(1.0, args.strength + 0.05)
