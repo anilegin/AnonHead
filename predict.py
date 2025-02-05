@@ -101,7 +101,7 @@ class Predictor:
         steps: int = 20,
         seed: int = None,
         guidance_scale: float = 10.0
-    ) -> str:
+    ):
         """
         image (str): Path to input image.
         mask (str): Path to mask image.
