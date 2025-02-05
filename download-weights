@@ -8,7 +8,7 @@ from diffusers import AutoencoderKL, StableDiffusionImg2ImgPipeline
 
 # append project directory to path so predict.py can be imported
 sys.path.append('.')
-from predict import MODEL_NAME, MODEL_CACHE, VAE_CACHE
+from predict import MODEL_NAME, MODEL_CACHE, VAE_CACHE, VAE_URL
 
 # Make cache folders
 if not os.path.exists(MODEL_CACHE):
@@ -17,9 +17,8 @@ if not os.path.exists(MODEL_CACHE):
 if not os.path.exists(VAE_CACHE):
     os.makedirs(VAE_CACHE)
 
-url = "https://huggingface.co/stabilityai/sd-vae-ft-mse-original/blob/main/vae-ft-mse-840000-ema-pruned.safetensors"
 vae = AutoencoderKL.from_single_file(
-    url,
+    VAE_URL,
     torch_dtype=torch.float16,
     cache_dir=VAE_CACHE
 )

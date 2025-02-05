@@ -10,6 +10,7 @@ import argparse
 MODEL_NAME = "SG161222/Realistic_Vision_V5.0_noVAE"
 MODEL_CACHE = "cache"
 VAE_CACHE = "vae-cache"
+VAE_URL = "https://huggingface.co/stabilityai/sd-vae-ft-mse-original/blob/main/vae-ft-mse-840000-ema-pruned.safetensors"
 
 
 class Predictor:
@@ -32,7 +33,7 @@ class Predictor:
         controlnets = [controlnet, lineart_controlnet]
         
         vae = AutoencoderKL.from_single_file(
-            "https://huggingface.co/stabilityai/sd-vae-ft-mse-original/blob/main/vae-ft-mse-840000-ema-pruned.safetensors",
+            VAE_URL,
             torch_dtype=torch.float16,
             cache_dir=VAE_CACHE
         )
