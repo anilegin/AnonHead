@@ -33,6 +33,42 @@ def segment(image):
     return cleaned_image
 
 
+
+def process_mask(pil_image: Image.Image) -> Image.Image:
+    """
+    Process a mask to fill holes, remove small black regions, and smooth edges.
+    
+    Args:
+        pil_image (PIL.Image.Image): Input mask as a PIL image.
+        
+    Returns:
+        PIL.Image.Image: Processed mask as a PIL image.
+    """
+
+    mask = np.array(pil_image.convert("L")) 
+
+    # Step 1: Fill holes using flood fill
+    filled_mask = mask.copy()
+    h, w = mask.shape
+    flood_fill_mask = np.zeros((h + 2, w + 2), np.uint8)  # +2 for floodFill boundary
+
+    cv2.floodFill(filled_mask, flood_fill_mask, (0, 0), 255)
+    filled_mask = cv2.bitwise_or(mask, cv2.bitwise_not(filled_mask))
+
+    # Step 2: Remove small black regions using morphological closing
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    cleaned_mask = cv2.morphologyEx(filled_mask, cv2.MORPH_CLOSE, kernel)
+
+    # Step 3: (Optional) Smooth the edges
+    smoothed_mask = cv2.GaussianBlur(cleaned_mask, (5, 5), 0)
+
+    processed_pil_image = Image.fromarray(smoothed_mask)
+
+    return processed_pil_image
+
+
+
+
 def annotate(img: Image.Image):
     """ Generates annotation image (segmentation) for the given image. 
     
@@ -59,8 +95,9 @@ def annotate(img: Image.Image):
     mask_data = np.array(mask_image)
     binary_mask = np.where(mask_data > 127, 255, 0).astype(np.uint8)
     final_mask_image = Image.fromarray(binary_mask)
+    smoothed_mask_image = process_mask(final_mask_image)
 
-    return final_mask_image
+    return smoothed_mask_image
 
 
 if __name__ == "__main__":
